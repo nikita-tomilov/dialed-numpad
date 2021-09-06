@@ -1,4 +1,4 @@
-enum KbdType { BOOT, MEDIA };
+enum KbdType { K, M };
 
 struct KeyEvent {
   enum KbdType type;

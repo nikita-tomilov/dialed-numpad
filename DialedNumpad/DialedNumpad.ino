@@ -8,20 +8,7 @@
 #include "HID-Project.h"
 
 #include "EventDef.h"
-
-const byte ROWS = 4;
-const byte COLS = 6;
-char hexaKeys[ROWS][COLS] = {
-  //6  7   4   5   2   3
-  {'a','b','c','d','e','f'}, //10
-  {'g','h','i','j','k','l'}, //16
-  {'m','n','o','p','q','r' }, //9
-  {'s','t','u','v','w','x'}  //8
-};
-byte rowPins[ROWS] =  {10, 16, 9, 8};
-byte colPins[COLS] = {6, 7, 4, 5, 2, 3};
-
-Keypad kpd = Keypad( makeKeymap(hexaKeys), rowPins, colPins, ROWS, COLS); 
+#include "MatrixKeyboardDef.h"
 
 Encoder enc2(A1, A0, 15, true);
 Encoder enc1(A3, A2, 14, true);
@@ -30,9 +17,9 @@ unsigned long loopCount;
 unsigned long startTime;
 String msg;
 
-KeyEvent encRotateLeftEvents[2] = { {MEDIA, MEDIA_VOLUME_DOWN}, {BOOT, KEY_UP} };
-KeyEvent encRotateRightEvents[2] = { {MEDIA, MEDIA_VOLUME_UP}, {BOOT, KEY_DOWN} };
-KeyEvent encPressEvents[2] = { {MEDIA, MEDIA_PLAY_PAUSE}, {BOOT, KEY_ENTER} };
+KeyEvent encRotateLeftEvents[2] = { {M, MEDIA_VOLUME_DOWN}, {K, KEY_UP} };
+KeyEvent encRotateRightEvents[2] = { {M, MEDIA_VOLUME_UP}, {K, KEY_DOWN} };
+KeyEvent encPressEvents[2] = { {M, MEDIA_PLAY_PAUSE}, {K, KEY_ENTER} };
 KeyEvent* encEvents[3] = { encRotateLeftEvents, encRotateRightEvents, encPressEvents };
 
 void setup(){
@@ -67,21 +54,13 @@ void loop() {
             if ( kpd.key[i].stateChanged )   // Only find keys that have changed state.
             {
                 switch (kpd.key[i].kstate) {  // Report active key state : IDLE, PRESSED, HOLD, or RELEASED
-                    case PRESSED:
-                    msg = " PRESSED.";
-                break;
-                    case HOLD:
-                    msg = " HOLD.";
-                break;
-                    case RELEASED:
-                    msg = " RELEASED.";
-                break;
-                    case IDLE:
-                    msg = " IDLE.";
+                case PRESSED:
+                  keyEvent(kpd.key[i].kchar, PRESSED);
+                  break;
+                case RELEASED:
+                  keyEvent(kpd.key[i].kchar, RELEASED);
+                  break;
                 }
-                Serial.print("Key ");
-                Serial.print(kpd.key[i].kchar);
-                Serial.println(msg);
             }
         }
     }
@@ -102,13 +81,20 @@ void encoderEvent(int encoderNo, int eventNo) {
   printff("%d %d\n", encoderNo, eventNo);
   KeyEvent e = encEvents[eventNo][encoderNo];
   printff("%d %d\n", e.type, e.keyCode);
-  if (e.type == BOOT) {
+  if (e.type == K) {
     BootKeyboard.write(KeyboardKeycode(e.keyCode));
-  } else if (e.type == MEDIA) {
+  } else if (e.type == M) {
     Consumer.write(e.keyCode);
   } else {
     printff("unknown key type %d\n", e.type);
   }
+}
+
+void keyEvent(char keyChar, int keyState) {
+  printff("key %c state %d\n", keyChar, keyState);
+  int row, col;
+  findRowColTransposed(keyChar, &row, &col);
+  printff("coord %d %d\n", row, col);
 }
 
 size_t printff(const char *format, ...) {
