@@ -15,6 +15,7 @@
 
 Encoder enc2(A1, A0, 15, true);
 Encoder enc1(A3, A2, 14, true);
+int layerIndex = 0;
 
 void setup(){
   pinMode(1, OUTPUT);
@@ -60,7 +61,7 @@ void keyEvent(char keyChar, int keyState) {
 }
 
 void emitKey(int row, int col, int keyState) {
-  KeyEvent e = keyEventsLayer0[row][col];
+  KeyEvent e = (layerIndex == 0) ? keyEventsLayer0[row][col] : keyEventsLayer1[row][col];
   if (keyState == PRESSED) {
     sendKey(e, KEYP_DOWN);
   } else if (keyState == RELEASED) {
@@ -87,6 +88,7 @@ void sendKey(KeyEvent e, KeyPressType t) {
         Consumer.press(e.keyCode);
       } else if (e.type == FN) {
         Serial.println("FN ON");
+        layerIndex = 1;
       }
       break;
     case KEYP_UP:
@@ -96,6 +98,7 @@ void sendKey(KeyEvent e, KeyPressType t) {
         Consumer.release(e.keyCode);
       } else if (e.type == FN) {
         Serial.println("FN OFF");
+        layerIndex = 0;
       }
       break;
   }
