@@ -1,4 +1,4 @@
-enum KbdType { K, M, FN, NOK };
+enum KbdType { K, M, FN, MOUSE, NOK };
 
 struct KeyEvent {
   enum KbdType type;

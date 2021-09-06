@@ -1,5 +1,5 @@
-KeyEvent encRotateLeftEvents[2] = { {M, MEDIA_VOLUME_DOWN}, {K, KEY_UP} };
-KeyEvent encRotateRightEvents[2] = { {M, MEDIA_VOLUME_UP}, {K, KEY_DOWN} };
+KeyEvent encRotateLeftEvents[2] = { {M, MEDIA_VOLUME_DOWN}, {MOUSE, -1} };
+KeyEvent encRotateRightEvents[2] = { {M, MEDIA_VOLUME_UP}, {MOUSE, 1} };
 KeyEvent encPressEvents[2] = { {M, MEDIA_PLAY_PAUSE}, {K, KEY_ENTER} };
 KeyEvent* encEvents[3] = { encRotateLeftEvents, encRotateRightEvents, encPressEvents };
 

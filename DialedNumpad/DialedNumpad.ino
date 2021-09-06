@@ -1,6 +1,8 @@
 #include <Keypad.h>
 #undef KEY_H //it is a include guard in this lib but actual const in hid-project lib
 
+#include "HMouse.h"
+
 //https://github.com/AlexGyver/GyverLibs#GyverEncoder
 #include "GyverEncoder.h"
 
@@ -73,6 +75,9 @@ void sendKey(KeyEvent e, KeyPressType t) {
         BootKeyboard.write(KeyboardKeycode(e.keyCode));
       } else if (e.type == M) {
         Consumer.write(e.keyCode);
+      } else if (e.type == MOUSE) {
+        //horizontal scroll
+        HMouse.move(0, 0, 0, e.keyCode);
       }
       break;
     case KEYP_DOWN:
