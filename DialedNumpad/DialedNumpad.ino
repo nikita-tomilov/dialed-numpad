@@ -1,6 +1,11 @@
 #include <Keypad.h>
 #undef KEY_H //it is a include guard in this lib but actual const in hid-project lib
 
+#include <Adafruit_NeoPixel.h>
+#ifdef __AVR__
+ #include <avr/power.h> // Required for 16 MHz Adafruit Trinket
+#endif
+
 #include "HMouse.h"
 
 //https://github.com/AlexGyver/GyverLibs#GyverEncoder
@@ -15,15 +20,26 @@
 
 Encoder enc2(A1, A0, 15, true);
 Encoder enc1(A3, A2, 14, true);
+Adafruit_NeoPixel pixels(4, 0, NEO_GRB + NEO_KHZ800);
 int layerIndex = 0;
 
 void setup(){
-  pinMode(1, OUTPUT);
-  digitalWrite(1, 1);
   Serial.begin(115200);
-  while (!Serial) {};
+  //while (!Serial) {};
   Serial.println("start ok");
   BootKeyboard.begin();
+
+  pixels.begin();
+  pixels.clear();
+  pixels.show();
+  setLed(0, 0, 0, 150); delay(200);
+  setLed(1, 150, 150, 0); delay(200);
+  setLed(2, 0, 150, 0); delay(200);
+  setLed(3, 150, 0, 0); delay(200);
+  pixels.clear();
+  pixels.show();
+
+  Serial.println("finita");
 }
   
 void loop() {
@@ -35,6 +51,10 @@ void loop() {
       }
     }
   }
+  setLedIfKbd(0, LED_CAPS_LOCK);
+  setLedIfKbd(1, LED_SCROLL_LOCK);
+  setLedIfKbd(2, LED_SHIFT);
+  setLedIfKbd(3, LED_NUM_LOCK);
 }
 
 void requestEncoders() {
@@ -102,6 +122,18 @@ void sendKey(KeyEvent e, KeyPressType t) {
       }
       break;
   }
+}
+
+void setLed(int ledIdx, int r, int g, int b) {
+  pixels.setPixelColor(ledIdx, pixels.Color(r, g, b));
+  pixels.show();
+}
+
+void setLedIfKbd(int ledIdx, uint8_t flag) {
+  if (BootKeyboard.getLeds() & flag)
+    setLed(ledIdx, 0, 32, 64);
+  else
+    setLed(ledIdx, 0, 0, 0);
 }
 
 size_t printff(const char *format, ...) {
